@@ -1,0 +1,126 @@
+local Player = game:GetService("Players").LocalPlayer
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+
+-- [ CLEANUP ]
+for _, v in pairs(Player.PlayerGui:GetChildren()) do
+    if v.Name:find("Nixwin") then v:Destroy() end
+end
+
+local ScreenGui = Instance.new("ScreenGui", Player.PlayerGui)
+ScreenGui.Name = "Nixwin_V51_Stable"
+ScreenGui.ResetOnSpawn = false
+
+-- [ FLAGS ]
+local Flags = {
+    Speed = false, Noclip = false, Fly = false, 
+    Chams = false, Resolver = false, DoubleTap = false,
+    Airshot = false, SpeedValue = 0.45
+}
+local UIBoxes = {}
+
+-- [ WATERMARK ]
+local WM = Instance.new("Frame", ScreenGui)
+WM.Size = UDim2.new(0, 220, 0, 26); WM.Position = UDim2.new(0, 15, 0, 15); WM.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+Instance.new("UICorner", WM); Instance.new("UIStroke", WM).Color = Color3.fromRGB(0, 170, 255)
+local WMText = Instance.new("TextLabel", WM)
+WMText.Size = UDim2.new(1, 0, 1, 0); WMText.BackgroundTransparency = 1; WMText.Font = Enum.Font.Code
+WMText.Text = " Nixwin.lua BETA | " .. Player.Name:lower(); WMText.TextColor3 = Color3.new(1, 1, 1); WMText.TextSize = 13
+
+-- [ KEYBINDS DISPLAY ]
+local BindFrame = Instance.new("Frame", ScreenGui)
+BindFrame.Size = UDim2.new(0, 170, 0, 115); BindFrame.Position = UDim2.new(0, 15, 0.3, 0)
+BindFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10); BindFrame.BackgroundTransparency = 0.3; Instance.new("UICorner", BindFrame)
+local BList = Instance.new("TextLabel", BindFrame)
+BList.Size = UDim2.new(1, -10, 1, -10); BList.Position = UDim2.new(0, 5, 0, 5); BList.BackgroundTransparency = 1; BList.TextColor3 = Color3.fromRGB(0, 170, 255); BList.Font = Enum.Font.Code; BList.TextSize = 12; BList.TextYAlignment = Enum.TextYAlignment.Top
+BList.Text = "[P] Toggle Menu\n[E] Speed Hack\n[K] Noclip\n[F] Sky Walker"
+
+-- [ MOBILE BUTTON ]
+local MobileBtn = Instance.new("TextButton", ScreenGui)
+MobileBtn.Size = UDim2.new(0, 55, 0, 55); MobileBtn.Position = UDim2.new(0, 10, 0.5, -27); MobileBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MobileBtn.Text = "NX"; MobileBtn.TextColor3 = Color3.fromRGB(0, 170, 255); MobileBtn.Font = Enum.Font.Code; MobileBtn.TextSize = 20; Instance.new("UICorner", MobileBtn).CornerRadius = UDim.new(1, 0)
+Instance.new("UIStroke", MobileBtn).Color = Color3.fromRGB(0, 170, 255)
+
+-- [ MAIN MENU ]
+local Main = Instance.new("Frame", ScreenGui)
+Main.Size = UDim2.new(0, 0, 0, 0); Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+Main.BackgroundColor3 = Color3.fromRGB(10, 10, 10); Main.Visible = false; Main.ClipsDescendants = true; Instance.new("UICorner", Main)
+Instance.new("UIStroke", Main).Color = Color3.fromRGB(40, 40, 40)
+
+-- HEADER
+local Logo = Instance.new("Frame", Main)
+Logo.Size = UDim2.new(0, 55, 0, 55); Logo.Position = UDim2.new(0, 20, 0, 15); Logo.BackgroundColor3 = Color3.fromRGB(20, 20, 20); Instance.new("UICorner", Logo).CornerRadius = UDim.new(1, 0)
+local LText = Instance.new("TextLabel", Logo); LText.Size = UDim2.new(1, 0, 1, 0); LText.Text = "NX"; LText.TextColor3 = Color3.fromRGB(0, 170, 255); LText.Font = Enum.Font.Code; LText.TextSize = 24; LText.BackgroundTransparency = 1
+local Title = Instance.new("TextLabel", Main); Title.Size = UDim2.new(0, 300, 0, 55); Title.Position = UDim2.new(0, 85, 0, 15); Title.Text = "Nixwin.lua BETA"; Title.TextColor3 = Color3.new(1, 1, 1); Title.Font = Enum.Font.Code; Title.TextSize = 26; Title.TextXAlignment = Enum.TextXAlignment.Left; Title.BackgroundTransparency = 1
+
+-- NAVIGATION
+local Sidebar = Instance.new("Frame", Main); Sidebar.Size = UDim2.new(0, 130, 1, -90); Sidebar.Position = UDim2.new(0, 15, 0, 80); Sidebar.BackgroundTransparency = 1
+local Container = Instance.new("Frame", Main); Container.Size = UDim2.new(1, -170, 1, -95); Container.Position = UDim2.new(0, 155, 0, 80); Container.BackgroundTransparency = 1
+
+local function CreateTab(name, y)
+    local Page = Instance.new("ScrollingFrame", Container); Page.Size = UDim2.new(1, 0, 1, 0); Page.BackgroundTransparency = 1; Page.Visible = (y == 0); Page.ScrollBarThickness = 0; Page.CanvasSize = UDim2.new(0,0,3,0)
+    local Btn = Instance.new("TextButton", Sidebar); Btn.Size = UDim2.new(1, 0, 0, 35); Btn.Position = UDim2.new(0, 0, 0, y); Btn.Text = name:upper(); Btn.BackgroundColor3 = Color3.fromRGB(18, 18, 18); Btn.TextColor3 = Color3.new(0.7, 0.7, 0.7); Btn.Font = Enum.Font.Code; Instance.new("UICorner", Btn)
+    Btn.MouseButton1Click:Connect(function() for _, p in pairs(Container:GetChildren()) do p.Visible = false end Page.Visible = true end)
+    return Page
+end
+
+local RageTab = CreateTab("Rage", 0)
+local VisTab = CreateTab("Visuals", 40)
+local SemiTab = CreateTab("Semirage", 80)
+local SkinTab = CreateTab("Skins", 120)
+local CfgTab = CreateTab("Configs", 160)
+
+local function AddToggle(n, y, f, parent)
+    local btn = Instance.new("TextButton", parent); btn.Size = UDim2.new(1, -10, 0, 35); btn.Position = UDim2.new(0, 0, 0, y); btn.BackgroundColor3 = Color3.fromRGB(20, 20, 20); btn.Text = n; btn.TextColor3 = Color3.new(0.6, 0.6, 0.6); btn.Font = Enum.Font.Code; Instance.new("UICorner", btn)
+    UIBoxes[f] = btn; btn.MouseButton1Click:Connect(function() 
+        Flags[f] = not Flags[f]
+        btn.TextColor3 = Flags[f] and Color3.fromRGB(0, 170, 255) or Color3.new(0.6, 0.6, 0.6)
+    end)
+end
+
+-- FUNCTIONS
+AddToggle("DOUBLE TAP", 0, "DoubleTap", RageTab)
+AddToggle("AIRSHOT", 40, "Airshot", RageTab)
+AddToggle("SPEED HACK (E)", 80, "Speed", RageTab)
+AddToggle("NOCLIP (K)", 120, "Noclip", RageTab)
+AddToggle("SKY WALKER (F)", 160, "Fly", RageTab)
+
+AddToggle("PLAYER CHAMS", 0, "Chams", VisTab)
+AddToggle("IMPROVED RESOLVER", 0, "Resolver", SemiTab)
+
+-- [ TOGGLE ANIMATION ]
+local function ToggleMenu()
+    if Main.Visible then
+        TweenService:Create(Main, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+        task.wait(0.3); Main.Visible = false
+    else
+        Main.Visible = true
+        TweenService:Create(Main, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Size = UDim2.new(0, 620, 0, 460), Position = UDim2.new(0.5, -310, 0.5, -230)}):Play()
+    end
+end
+
+-- BINDS
+UIS.InputBegan:Connect(function(i, p) if not p then 
+    if i.KeyCode == Enum.KeyCode.P then ToggleMenu() end
+    if i.KeyCode == Enum.KeyCode.E then Flags.Speed = not Flags.Speed; if UIBoxes.Speed then UIBoxes.Speed.TextColor3 = Flags.Speed and Color3.fromRGB(0, 170, 255) or Color3.new(0.6, 0.6, 0.6) end end
+    if i.KeyCode == Enum.KeyCode.K then Flags.Noclip = not Flags.Noclip; if UIBoxes.Noclip then UIBoxes.Noclip.TextColor3 = Flags.Noclip and Color3.fromRGB(0, 170, 255) or Color3.new(0.6, 0.6, 0.6) end end
+    if i.KeyCode == Enum.KeyCode.F then Flags.Fly = not Flags.Fly; if UIBoxes.Fly then UIBoxes.Fly.TextColor3 = Flags.Fly and Color3.fromRGB(0, 170, 255) or Color3.new(0.6, 0.6, 0.6) end end
+end end)
+MobileBtn.MouseButton1Click:Connect(ToggleMenu)
+
+-- [ CORE LOGIC ]
+RunService.Heartbeat:Connect(function()
+    local char = Player.Character
+    if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid") then
+        local hrp = char.HumanoidRootPart
+        local hum = char.Humanoid
+        
+        if Flags.Speed and hum.MoveDirection.Magnitude > 0 then 
+            hrp.CFrame = hrp.CFrame + (hum.MoveDirection * Flags.SpeedValue)
+        end
+        if Flags.Noclip then for _, v in pairs(char:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = false end end end
+        if Flags.Fly then hrp.Velocity = Vector3.new(hrp.Velocity.X, 3.5, hrp.Velocity.Z) end
+    end
+end)
+
